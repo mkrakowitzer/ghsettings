@@ -1,0 +1,39 @@
+repository:
+  name: example2
+  description: example2 description of repo
+  homepage: https://example.github.io/
+  private: false
+  has_issues: false
+  has_projects: false
+  has_wiki: false
+  default_branch: master
+  allow_squash_merge: true
+  allow_merge_commit: true
+  allow_rebase_merge: true
+  delete_branch_on_merge: true
+
+collaborators:
+  - username: sreboot
+    permission: triage
+  - username: mkrakowitzer
+    permission: admin
+
+teams:
+  - name: platform
+    permission: maintain
+  - name: Everyone
+    permission: pull
+
+branches:
+  - name: master
+    requiresApprovingReviews: true
+    requiredApprovingReviewCount: 1
+    dismissesStaleReviews: true
+    requiresCodeOwnerReviews: true
+    requiresStatusChecks: false
+    requiredStatusCheckContexts: []
+    requiresStrictStatusChecks: false
+    requiresCommitSignatures: true
+    restrictsPushes: false
+    pushActorIds: []
+    isAdminEnforced: false
