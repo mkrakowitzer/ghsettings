@@ -19,7 +19,7 @@ You need to export your GitHub token and your GitHub Organisation. Your token re
 
 `
 export GITHUB_ORG=boringWorks
-export GITHUB_TOKEN=foobarbaz
+export MU_GITHUB_TOKEN=foobarbaz
 `
 
 Create a single YAML file for each repository with the below configuration template inside the repo_config directory.

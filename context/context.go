@@ -22,7 +22,7 @@ func (c *fsContext) AuthToken() (string, error) {
 		return c.authToken, nil
 	}
 
-	token := os.Getenv("GITHUB_TOKEN")
+	token := os.Getenv("MU_GITHUB_TOKEN")
 
 	return token, nil
 }
