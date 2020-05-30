@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/mkrakowitzer/ghsettings/config"
+	"github.com/mkrakowitzer/ghsettings/utils"
 )
 
 type Collaborator struct {
@@ -81,7 +82,7 @@ func CollaboratorRemoveFromRepo(client *Client, config config.C) error {
 		gh_rules = append(gh_rules, k.Login)
 	}
 
-	delete := missing(missing(yml_rules, gh_rules), admins)
+	delete := utils.Missing(utils.Missing(yml_rules, gh_rules), admins)
 
 	for _, k := range result {
 		for _, s := range delete {

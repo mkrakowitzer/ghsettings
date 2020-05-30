@@ -13,9 +13,9 @@ repository:
   delete_branch_on_merge: true
 
 collaborators:
-  - username: sreboot
+  - username: userone
     permission: triage
-  - username: mkrakowitzer
+  - username: usertwo
     permission: admin
 
 teams:
