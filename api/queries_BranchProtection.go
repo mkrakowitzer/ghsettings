@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/mkrakowitzer/ghsettings/config"
+	"github.com/mkrakowitzer/ghsettings/utils"
 	"github.com/shurcooL/githubv4"
 )
 
@@ -202,7 +203,7 @@ func DeleteBranchProtections(client *Client, config config.C, rules *BranchProte
 	for _, k := range rules.Organization.Repository.BranchProtectionRules.Nodes {
 		gh_rules = append(gh_rules, k.Pattern)
 	}
-	delete := missing(yml_rules, gh_rules)
+	delete := utils.Missing(yml_rules, gh_rules)
 
 	for _, s := range delete {
 		for _, k := range rules.Organization.Repository.BranchProtectionRules.Nodes {

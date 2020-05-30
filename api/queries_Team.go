@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/mkrakowitzer/ghsettings/config"
+	"github.com/mkrakowitzer/ghsettings/utils"
 )
 
 var Org string
@@ -73,7 +74,7 @@ func TeamDeleteFromRepo(client *Client, config config.C) error {
 		gh_rules = append(gh_rules, k.Name)
 	}
 
-	delete := missing(yml_rules, gh_rules)
+	delete := utils.Missing(yml_rules, gh_rules)
 
 	for _, k := range result {
 		for _, s := range delete {
