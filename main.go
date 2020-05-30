@@ -19,7 +19,9 @@ var apiClientForContext = func(ctx context.Context) (*api.Client, error) {
 	}
 
 	var opts []api.ClientOption
-
+	if verbose := os.Getenv("DEBUG"); verbose != "" {
+		opts = append(opts, api.ApiVerboseLog())
+	}
 	getAuthValue := func() string {
 		return fmt.Sprintf("token %s", token)
 	}
@@ -27,7 +29,7 @@ var apiClientForContext = func(ctx context.Context) (*api.Client, error) {
 	Version := "1"
 	opts = append(opts,
 		api.AddHeaderFunc("Authorization", getAuthValue),
-		api.AddHeader("User-Agent", fmt.Sprintf("ghadmin %s", Version)),
+		api.AddHeader("User-Agent", fmt.Sprintf("ghsettings %s", Version)),
 		api.AddHeader("Accept", "application/vnd.github.antiope-preview+json"),
 	)
 

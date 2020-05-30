@@ -146,6 +146,12 @@ branches:
     isAdminEnforced: true
 ```
 
+Enable debugging by setting the DEBUG environment variable
+
+```
+export DEBUG=true
+```
+
 ## Todo
 
 * Add tests

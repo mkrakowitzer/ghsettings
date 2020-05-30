@@ -7,7 +7,11 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"regexp"
 	"strings"
+
+	"github.com/henvic/httpretty"
 )
 
 // ClientOption represents an argument to NewClient
@@ -193,6 +197,35 @@ func handleHTTPError(resp *http.Response) error {
 	}
 
 	return fmt.Errorf("http error, '%s' failed (%d): '%s'", resp.Request.URL, resp.StatusCode, message)
+}
+
+// VerboseLog enables request/response logging within a RoundTripper
+func VerboseLog(out io.Writer, logTraffic bool) ClientOption {
+	logger := &httpretty.Logger{
+		Time:           true,
+		TLS:            false,
+		RequestHeader:  logTraffic,
+		RequestBody:    logTraffic,
+		ResponseHeader: logTraffic,
+		ResponseBody:   logTraffic,
+		Formatters:     []httpretty.Formatter{&httpretty.JSONFormatter{}},
+	}
+	logger.SetOutput(out)
+	logger.SetBodyFilter(func(h http.Header) (skip bool, err error) {
+		return !inspectableMIMEType(h.Get("Content-Type")), nil
+	})
+	return logger.RoundTripper
+}
+
+var jsonTypeRE = regexp.MustCompile(`[/+]json($|;)`)
+
+func inspectableMIMEType(t string) bool {
+	return strings.HasPrefix(t, "text/") || jsonTypeRE.MatchString(t)
+}
+
+func ApiVerboseLog() ClientOption {
+	logTraffic := strings.Contains(os.Getenv("DEBUG"), "api")
+	return VerboseLog(os.Stderr, logTraffic)
 }
 
 type void struct{}
