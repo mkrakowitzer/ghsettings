@@ -54,16 +54,20 @@ type Collaborators []struct {
 	Login  string `json:"login"`
 	ID     int    `json:"id"`
 	NodeID string `json:"node_id"`
-	Type   string `json:"type"`
 }
 
 // Refactor this, was in a hurry
 func CollaboratorRemoveFromRepo(client *Client, config config.C) error {
 
+	admins, err := AdminList(client)
+	if err != nil {
+		return err
+	}
+
 	path := fmt.Sprintf("repos/%s/%s/collaborators", Org, config.Repository.Name)
 	result := Collaborators{}
 
-	err := client.REST("GET", path, &bytes.Buffer{}, &result)
+	err = client.REST("GET", path, &bytes.Buffer{}, &result)
 	if err != nil {
 		return err
 	}
@@ -74,12 +78,10 @@ func CollaboratorRemoveFromRepo(client *Client, config config.C) error {
 		yml_rules = append(yml_rules, k.Username)
 	}
 	for _, k := range result {
-		if k.Type == "User" {
-			gh_rules = append(gh_rules, k.Login)
-		}
+		gh_rules = append(gh_rules, k.Login)
 	}
 
-	delete := missing(yml_rules, gh_rules)
+	delete := missing(missing(yml_rules, gh_rules), admins)
 
 	for _, k := range result {
 		for _, s := range delete {
@@ -94,4 +96,20 @@ func CollaboratorRemoveFromRepo(client *Client, config config.C) error {
 		}
 	}
 	return nil
+}
+
+func AdminList(client *Client) ([]string, error) {
+
+	path := fmt.Sprintf("orgs/%s/members?role=admin", Org)
+	result := Collaborators{}
+
+	err := client.REST("GET", path, &bytes.Buffer{}, &result)
+	if err != nil {
+		return nil, err
+	}
+	keys := make([]string, 0, len(result))
+	for _, i := range result {
+		keys = append(keys, i.Login)
+	}
+	return keys, nil
 }
