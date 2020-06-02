@@ -10,8 +10,6 @@ import (
 	"github.com/mkrakowitzer/ghsettings/utils"
 )
 
-var Org string
-
 type Team struct {
 	Name       string `json:"name"`
 	Permission string `json:"permission"`

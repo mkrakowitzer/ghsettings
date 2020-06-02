@@ -14,6 +14,8 @@ import (
 	"github.com/henvic/httpretty"
 )
 
+var Org string
+
 // ClientOption represents an argument to NewClient
 type ClientOption = func(http.RoundTripper) http.RoundTripper
 
