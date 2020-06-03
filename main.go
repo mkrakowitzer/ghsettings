@@ -2,7 +2,6 @@ package main
 
 import (
 	log "github.com/Sirupsen/logrus"
-
 	"github.com/mkrakowitzer/ghsettings/command"
 )
 

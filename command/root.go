@@ -46,7 +46,7 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().BoolP("enforce", "e", false, "Enforce Collaborators, Teams and Branches")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -92,6 +92,7 @@ func run(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		log.Fatal(err)
 	}
+	rate_start, _ := api.GetRateLimit(apiClient)
 
 	for _, f := range files {
 
@@ -116,21 +117,28 @@ func run(cmd *cobra.Command, args []string) error {
 			log.Fatal(err)
 		}
 
-		err = api.UpdateCollaborator(apiClient, config)
+		err = api.UpdateCollaborator(apiClient, config, cmd)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		err = api.UpdateTeam(apiClient, config)
+		err = api.UpdateTeam(apiClient, config, cmd)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		err = api.BranchProtections(apiClient, repo, config)
+		err = api.BranchProtections(apiClient, repo, config, cmd)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
+	rate_end, _ := api.GetRateLimit(apiClient)
+	log.WithFields(log.Fields{
+		"core_api_calls":    rate_start.Resources.Core.Remaining - rate_end.Resources.Core.Remaining,
+		"graphql_ap_calls":  rate_start.Resources.Graphql.Remaining - rate_end.Resources.Graphql.Remaining,
+		"core_remaining":    rate_end.Resources.Core.Remaining,
+		"graphql_remaining": rate_end.Resources.Graphql.Remaining,
+	}).Info("rate limit stats")
 	return nil
 }
 

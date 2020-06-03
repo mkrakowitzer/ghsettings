@@ -8,6 +8,7 @@ import (
 
 	"github.com/mkrakowitzer/ghsettings/config"
 	"github.com/mkrakowitzer/ghsettings/utils"
+	"github.com/spf13/cobra"
 )
 
 type Collaborator struct {
@@ -15,14 +16,16 @@ type Collaborator struct {
 	Permission string `json:"permission"`
 }
 
-func UpdateCollaborator(apiClient *Client, config config.C) error {
+func UpdateCollaborator(apiClient *Client, config config.C, cmd *cobra.Command) error {
 
 	err := CollaboratorAddToRepo(apiClient, config)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	err = CollaboratorRemoveFromRepo(apiClient, config)
+	enforce, _ := cmd.PersistentFlags().GetBool("enforce")
+	if enforce {
+		err = CollaboratorRemoveFromRepo(apiClient, config)
+	}
 	return err
 }
 

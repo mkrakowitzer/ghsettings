@@ -4,6 +4,7 @@ import (
 	"github.com/mkrakowitzer/ghsettings/config"
 	"github.com/mkrakowitzer/ghsettings/utils"
 	"github.com/shurcooL/githubv4"
+	"github.com/spf13/cobra"
 )
 
 type BranchProtectionRules struct {
@@ -30,7 +31,7 @@ type BranchProtectionRules struct {
 	} `json:"organization"`
 }
 
-func BranchProtections(apiClient *Client, repo *RepoPayload, config config.C) error {
+func BranchProtections(apiClient *Client, repo *RepoPayload, config config.C, cmd *cobra.Command) error {
 
 	rules, err := GetBranchProtectionRules(apiClient, config.Repository.Name)
 	if err != nil {
@@ -75,10 +76,14 @@ func BranchProtections(apiClient *Client, repo *RepoPayload, config config.C) er
 			return err
 		}
 	}
-	err = DeleteBranchProtections(apiClient, config, rules)
-	if err != nil {
-		return err
+	enforce, _ := cmd.PersistentFlags().GetBool("enforce")
+	if enforce {
+		err = DeleteBranchProtections(apiClient, config, rules)
+		if err != nil {
+			return err
+		}
 	}
+
 	return nil
 }
 

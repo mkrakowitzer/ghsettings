@@ -7,8 +7,6 @@ We manage a relatively large GitHub organisation and require an easy way to mana
 ## Features
 * Runs as a GitHub action or can be used as CLI tool.
 * Can run from a single repository and apply settings to all the repositories in your GitHub Organisation.
-* Enforces the desired state
-  * Users, Group and Branch protections not defined with ghsettings are removed every time the action runs. This is to discourage manual changes via the GUI.
 * Supports the maintain and triage roles for users and groups
 * Supports wildcards in-branch protection rules
 * Does not require branches to exist to create rules
@@ -151,8 +149,12 @@ Enable debugging by setting the DEBUG environment variable
 ```
 export DEBUG=true
 ```
+## Switches
+
+`--enforce` Enforces the desired state. Users, Group and Branch protections not defined with ghsettings are removed every time the action runs. This is to discourage manual changes via the GUI. *This is expensive on API requests* 
 
 ## Todo
 
 * Add tests
 * Merge defaults from a default file
+* Optmise how ghsettings uses the API

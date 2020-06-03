@@ -8,6 +8,7 @@ import (
 
 	"github.com/mkrakowitzer/ghsettings/config"
 	"github.com/mkrakowitzer/ghsettings/utils"
+	"github.com/spf13/cobra"
 )
 
 type Team struct {
@@ -15,12 +16,15 @@ type Team struct {
 	Permission string `json:"permission"`
 }
 
-func UpdateTeam(apiClient *Client, config config.C) error {
+func UpdateTeam(apiClient *Client, config config.C, cmd *cobra.Command) error {
 	err := TeamAddToRepo(apiClient, config)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = TeamDeleteFromRepo(apiClient, config)
+	enforce, _ := cmd.PersistentFlags().GetBool("enforce")
+	if enforce {
+		err = TeamDeleteFromRepo(apiClient, config)
+	}
 	return err
 }
 
