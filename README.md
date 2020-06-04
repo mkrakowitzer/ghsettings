@@ -152,6 +152,7 @@ export DEBUG=true
 ## Switches
 
 `--enforce` Enforces the desired state. Users, Group and Branch protections not defined with ghsettings are removed every time the action runs. This is to discourage manual changes via the GUI. *This is expensive on API requests* 
+`--files` List of files delimited by a , `--files foo.yaml,bar.yaml` or `--files foo.yaml --files bar.yaml`
 
 ## Todo
 

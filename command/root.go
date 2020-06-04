@@ -23,7 +23,10 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "ghsettings",
 	Short: "Configure GitHub repositories, collaborators, teams and branch protections",
-	RunE:  run,
+	Long: `Configure GitHub repositories, collaborators, teams and branch protections
+
+MU_GITHUB_TOKEN and GITHUB_ORG environment variables must be set`,
+	RunE: run,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -43,7 +46,9 @@ func init() {
 	// will be global for your application.
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ghsettings.yaml)")
-
+	rootCmd.PersistentFlags().StringSlice("files", []string{}, "List of files seperated by spaces")
+	viper.BindPFlag("files", rootCmd.PersistentFlags().Lookup("files"))
+	viper.SetDefault("files", []string{})
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.PersistentFlags().BoolP("enforce", "e", false, "Enforce Collaborators, Teams and Branches")
@@ -68,6 +73,8 @@ func initConfig() {
 
 	viper.BindEnv("GITHUB_ORG")
 	viper.BindEnv("MU_GITHUB_TOKEN")
+	viper.BindEnv("GHSETTINGS_CONFIGDIR")
+
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
@@ -76,14 +83,27 @@ func initConfig() {
 
 func run(cmd *cobra.Command, args []string) error {
 
-	Org := viper.GetString("GITHUB_ORG")
-	api.Org = Org
-
 	var config config.C
 
-	files, err := ioutil.ReadDir("./repo_config")
-	if err != nil {
-		log.Fatal(err)
+	Org := viper.GetString("GITHUB_ORG")
+	api.Org = Org
+	config_dir := viper.GetString("GHSETTINGS_CONFIGDIR")
+	if config_dir == "" {
+		config_dir = "repo_config"
+	}
+
+	var files []string
+
+	if len(viper.GetStringSlice("files")) == 0 {
+		f, err := ioutil.ReadDir(fmt.Sprintf("./%s", config_dir))
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, k := range f {
+			files = append(files, k.Name())
+		}
+	} else {
+		files = viper.GetStringSlice("files")
 	}
 
 	ctx := context.New()
@@ -96,7 +116,7 @@ func run(cmd *cobra.Command, args []string) error {
 
 	for _, f := range files {
 
-		data, err := ioutil.ReadFile("./repo_config/" + f.Name())
+		data, err := ioutil.ReadFile(config_dir + "/" + f)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -104,8 +124,8 @@ func run(cmd *cobra.Command, args []string) error {
 			log.Fatal(err)
 		}
 		log.WithFields(log.Fields{
-			"Name": config.Repository.Name,
-		}).Info()
+			"name": config.Repository.Name,
+		}).Info("applying to repository")
 
 		repo, err := api.GetRepoID(apiClient, Org, config.Repository.Name)
 		if err != nil {
@@ -134,10 +154,11 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 	rate_end, _ := api.GetRateLimit(apiClient)
 	log.WithFields(log.Fields{
-		"core_api_calls":    rate_start.Resources.Core.Remaining - rate_end.Resources.Core.Remaining,
-		"graphql_ap_calls":  rate_start.Resources.Graphql.Remaining - rate_end.Resources.Graphql.Remaining,
-		"core_remaining":    rate_end.Resources.Core.Remaining,
-		"graphql_remaining": rate_end.Resources.Graphql.Remaining,
+		"core_api_calls":     rate_start.Resources.Core.Remaining - rate_end.Resources.Core.Remaining,
+		"graphql_ap_calls":   rate_start.Resources.Graphql.Remaining - rate_end.Resources.Graphql.Remaining,
+		"core_remaining":     rate_end.Resources.Core.Remaining,
+		"graphql_remaining":  rate_end.Resources.Graphql.Remaining,
+		"combined_remaining": rate_end.Rate.Remaining,
 	}).Info("rate limit stats")
 	return nil
 }
