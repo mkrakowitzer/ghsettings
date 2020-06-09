@@ -86,7 +86,7 @@ func UpdateRepositoryV3(client *Client, repo *RepoPayload, config config.C) erro
 
 	updateRepo := Repository{
 		Private:             config.Repository.Private,
-		DefaultBranch:       "master",
+		DefaultBranch:       config.Repository.DefaultBranch,
 		AllowRebaseMerge:    config.Repository.AllowRebaseMerge,
 		AllowSquashMerge:    config.Repository.AllowSquashMerge,
 		AllowMergeCommit:    config.Repository.AllowMergeCommit,
