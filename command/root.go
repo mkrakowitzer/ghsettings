@@ -100,7 +100,7 @@ func run(cmd *cobra.Command, args []string) error {
 			log.Fatal(err)
 		}
 		for _, k := range f {
-			files = append(files, k.Name())
+			files = append(files, fmt.Sprintf("%s/%s", config_dir, k.Name()))
 		}
 	} else {
 		files = viper.GetStringSlice("files")
@@ -116,7 +116,7 @@ func run(cmd *cobra.Command, args []string) error {
 
 	for _, f := range files {
 
-		data, err := ioutil.ReadFile(config_dir + "/" + f)
+		data, err := ioutil.ReadFile(f)
 		if err != nil {
 			log.Fatal(err)
 		}
